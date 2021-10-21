@@ -1,3 +1,5 @@
 .vscode
 client
-tmp
+tmp*
+test*
+a.out

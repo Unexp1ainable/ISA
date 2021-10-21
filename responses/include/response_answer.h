@@ -6,6 +6,9 @@
 class ResponseAnswer : public Response
 {
 public:
+    ResponseAnswer() = default;
     ResponseAnswer(const char buffer[BUFFER_LEN]);
-    const string answer;
+    virtual const string message() const override;
+
+    string answer;
 };

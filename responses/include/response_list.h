@@ -1,25 +1,29 @@
 #pragma once
 
 #include "response_base.h"
+#include <iostream>
+
+class ResponseListItem
+{
+public:
+    ResponseListItem(int id_, string sender_, string subject_);
+    const int id;
+    const string sender;
+    const string subject;
+};
+ostream &operator<<(ostream &s, ResponseListItem &item);
 
 
 class ResponseList : public Response
 {
-    class Item;
-
 public:
+    ResponseList() = default;
     ResponseList(const char buffer[BUFFER_LEN]);
-    const vector<Item> items() const { return _items; };
+    const vector<ResponseListItem> items() const { return _items; };
+    virtual const string message() const override;
 
 private:
-    vector<Item> _items;
-};
-
-class ResponseList::Item
-{
-public:
-    Item(int id, string sender, string subject);
-    const int id;
-    const string sender;
-    const string subject;
+    string nextListItem(const char* buffer);
+    const char* _lastItem = nullptr;
+    vector<ResponseListItem> _items;
 };

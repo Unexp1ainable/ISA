@@ -4,3 +4,10 @@ ResponseAnswer::ResponseAnswer(const char buffer[BUFFER_LEN]) :
 Response(buffer), 
 answer(nextToken(buffer))
 { }
+
+const string ResponseAnswer::message() const {
+    if (retcode == ResponseCode::OK){
+    return answer;
+    }
+    return _errMessage;
+}

@@ -1,9 +1,23 @@
 #include "../include/register_command.h"
+#include "../../base64.h"
 
-RegisterCommand::RegisterCommand(ArgumentParser &args)
+RegisterCommand::RegisterCommand(ArgumentParser &args) : CommandBase(args), _response()
 {
-    checkNArgs(args.count(), 2);
+    checkNArgs(2);
+}
 
-    _login = args.params()[0];
-    _password = args.params()[1];
+string RegisterCommand::getPayload() {
+    string ret;
+    ret += "(register \"";
+    ret += _args.params()[0];
+    ret += "\" \"";
+    ret += encode(_args.params()[1]);
+    ret += "\")";
+
+    return ret;
+}
+
+Response *RegisterCommand::processResponse(char *buf) {
+    _response = ResponseAnswer(buf);
+    return &_response; 
 }

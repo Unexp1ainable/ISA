@@ -11,6 +11,8 @@ string encode(string toEncodeS)
     auto len = toEncodeS.length();
     auto iterations = len / 3;
     auto fin = len % 3;
+
+    // encode every char that fits into 4-group
     string encoded;
     for (int i = 0; i < iterations; i++)
     {
@@ -21,6 +23,7 @@ string encode(string toEncodeS)
         encoded += lTable[tmp & 63u];
     }
 
+    // encode remaining characters
     auto tmp = *reinterpret_cast<const uint32_t *>(toEncode);
     switch (fin)
     {

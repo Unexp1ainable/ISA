@@ -6,8 +6,10 @@
 class ResponseFetch : public Response
 {
 public:
+    ResponseFetch() : sender(), subject(), body() {}
     ResponseFetch(const char buffer[BUFFER_LEN]);
-    const string sender;
-    const string subject;
-    const string message;
+    virtual const string message() const override;
+    string sender;
+    string subject;
+    string body;
 };

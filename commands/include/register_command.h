@@ -2,12 +2,16 @@
 
 #include "command_base.h"
 
-class RegisterCommand : public CommandBase {
+using namespace std;
+
+class RegisterCommand : public CommandBase
+{
 public:
-    RegisterCommand(ArgumentParser& args);
-    virtual ResponseAnswer* execute() override;
-    virtual ResponseAnswer* response() override;
-private:
-    string _login;
-    string _password;
+    RegisterCommand(ArgumentParser &args);
+    virtual string getPayload() override;
+    virtual Response *response() override { return &_response; };
+
+protected:
+    virtual Response *processResponse(char *buf) override;
+    ResponseAnswer _response;
 };

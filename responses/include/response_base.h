@@ -19,13 +19,13 @@ enum class ResponseCode
 class Response
 {
 public:
-    Response() = delete;
+    Response() = default;
     Response(const char buffer[BUFFER_LEN]);
-    virtual ~Response();
+    virtual ~Response() = default;
     
-    const ResponseCode retcode;
+    ResponseCode retcode = ResponseCode::UNKNOWN;
 
-    string errMessage();
+    virtual const string message() const = 0;
     
 protected:
     /**
@@ -36,6 +36,8 @@ protected:
      */
     string nextToken(const char buffer[BUFFER_LEN]);
 
+    pair<string, int> nextToken(const char buffer[BUFFER_LEN], int pos);
+
     /**
      * @brief Returns ResponseCode according to chars in buffer
      * 
@@ -44,9 +46,7 @@ protected:
      */
     ResponseCode getResponseCode(const char buffer[BUFFER_LEN]);
 
-    const char *_lastPos = 0;
+    const char *_lastPos = nullptr;
     const char *_endIt = nullptr;
-
-private:
-    string _errMessage;
+    string _errMessage = "";
 };
