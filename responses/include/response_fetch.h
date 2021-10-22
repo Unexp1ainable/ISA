@@ -2,7 +2,10 @@
 
 #include "response_base.h"
 
-
+/**
+ * @brief Server response on the fetch command
+ * 
+ */
 class ResponseFetch : public Response
 {
 public:

@@ -2,7 +2,10 @@
 
 #include "response_base.h"
 
-
+/**
+ * @brief Answer from the server
+ * 
+ */
 class ResponseAnswer : public Response
 {
 public:

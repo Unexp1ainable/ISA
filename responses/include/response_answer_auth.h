@@ -2,6 +2,10 @@
 
 #include "response_base.h"
 
+/**
+ * @brief Answer from the server with authentication code
+ * 
+ */
 class ResponseAnswerAuth : public Response
 {
 public:

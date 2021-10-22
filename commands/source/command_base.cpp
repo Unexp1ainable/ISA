@@ -9,12 +9,12 @@ addrinfo_ptr CommandBase::createSocketAddress()
     struct addrinfo hints;
     struct addrinfo *result;
 
-    /* Obtain address(es) matching host/port */
+    // prepare hints for address retrieving
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC;     /* Allow IPv4 or IPv6 */
+    hints.ai_family = AF_UNSPEC; 
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = 0;
-    hints.ai_protocol = 0; /* Any protocol */
+    hints.ai_protocol = 0;
 
     int s = getaddrinfo(_args.ip().c_str(), to_string(_args.port()).c_str(), &hints, &result);
     if (s != 0)
@@ -29,7 +29,6 @@ Response *CommandBase::execute()
     char buffer[1024];
     string payload = getPayload();
 
-
     int ret;
     addrinfo_ptr addr = createSocketAddress();
 
@@ -38,28 +37,21 @@ Response *CommandBase::execute()
     {
         throw SocketFailureException();
     }
+    // raii socket closing
     unique_ptr<int, function<int(int *)>>__a(&socketFD, [](int *fd)
                                           { return close(*fd); });
+                                          
     ret = connect(socketFD, addr->ai_addr, addr->ai_addrlen);
-
     if (ret < 0)
-    {
         throw SocketFailureException();
-    }
 
     ret = write(socketFD, payload.c_str(), payload.length());
-
     if (ret == -1)
-    {
         throw SocketFailureException();
-    }
 
     ret = read(socketFD, buffer, BUFFER_LEN);
-
     if (ret == -1)
-    {
         throw SocketFailureException();
-    }
 
     return processResponse(buffer);
 }

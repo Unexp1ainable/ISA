@@ -9,6 +9,10 @@
 
 using namespace std;
 
+/**
+ * @brief Return code of the server response
+ * 
+ */
 enum class ResponseCode
 {
     OK,
@@ -16,6 +20,10 @@ enum class ResponseCode
     UNKNOWN
 };
 
+/**
+ * @brief Base class for all responses
+ * 
+ */
 class Response
 {
 public:
@@ -36,6 +44,13 @@ protected:
      */
     string nextToken(const char buffer[BUFFER_LEN]);
 
+    /**
+     * @brief Find string bounded by "" in the buffer, starting at pos
+     * 
+     * @param buffer Where to look for token
+     * @param pos Where to start searching
+     * @return pair<string, int> Found token and its length
+     */
     pair<string, int> nextToken(const char buffer[BUFFER_LEN], int pos);
 
     /**
@@ -46,7 +61,10 @@ protected:
      */
     ResponseCode getResponseCode(const char buffer[BUFFER_LEN]);
 
+    // internal counters used by nextToken()
     const char *_lastPos = nullptr;
     const char *_endIt = nullptr;
+
+    // error message from the server
     string _errMessage = "";
 };

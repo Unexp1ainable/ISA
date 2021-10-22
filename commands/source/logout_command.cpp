@@ -17,6 +17,7 @@ string LogoutCommand::getPayload() {
 Response *LogoutCommand::processResponse(char *buf) {
     _response = ResponseAnswer(buf);
     if (_response.retcode == ResponseCode::OK){
+        // remove token file
         int failure = remove("login-token");
         if (failure){
             throw UserNotLoggedInException();

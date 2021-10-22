@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
         auto args = ArgumentParser(argc, argv);
         CommandBase *command = nullptr;
 
+        // process command
         switch (args.command())
         {
         case Command::REGISTER:

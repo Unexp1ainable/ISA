@@ -17,8 +17,13 @@
 #include <unistd.h>
 
 using namespace std;
+
 using addrinfo_ptr = unique_ptr<addrinfo, function<void(addrinfo *)>>;
 
+/**
+ * @brief Base class for all commands
+ * 
+ */
 class CommandBase
 {
 public:
@@ -31,7 +36,7 @@ public:
     virtual ~CommandBase() = default;
 
     /**
-     * @brief Defines way how the TCP payload is assembled
+     * @brief Assembles TCP payload
      *
      * @return string Request to be sent to ISAMAIL server.
      */
