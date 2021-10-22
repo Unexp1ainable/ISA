@@ -6,6 +6,7 @@ class LogoutCommand : public CommandBase
 {
 public:
     LogoutCommand(ArgumentParser &args);
+    virtual ~LogoutCommand() override = default;
     virtual string getPayload() override;
     virtual ResponseAnswer *response() override { return &_response; };
 

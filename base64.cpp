@@ -14,7 +14,7 @@ string encode(string toEncodeS)
 
     // encode every char that fits into 4-group
     string encoded;
-    for (int i = 0; i < iterations; i++)
+    for (unsigned int i = 0; i < iterations; i++)
     {
         auto tmp = *reinterpret_cast<const uint32_t *>(toEncode + len - 3 - i * 3);
         encoded += lTable[(tmp & (63u << 18)) >> 18];
@@ -53,7 +53,7 @@ string decode(string toDecodeS)
     const char *toDecode = toDecodeS.c_str();
     auto len = toDecodeS.length();
     string decoded;
-    for (int i = 0; i < len; i+=4)
+    for (unsigned int i = 0; i < len; i+=4)
     {
 
         uint32_t bits = 0;

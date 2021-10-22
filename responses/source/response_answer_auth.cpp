@@ -14,7 +14,7 @@ token(nextToken(buffer))
 
 const string ResponseAnswerAuth::message() const {
     if (retcode == ResponseCode::OK){
-    return answer;
+        return "SUCCESS: " + answer;
     }
-    return _errMessage;
+    return "ERROR: " + _errMessage;
 }

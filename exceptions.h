@@ -18,7 +18,7 @@ class SocketFailureException : public exception {
 };
 
 class UserNotLoggedInException : public exception {
-    virtual const char* what() const noexcept override { return "User is not logged in."; }
+    virtual const char* what() const noexcept override { return "Not logged in"; }
 };
 
 class CommandRedefinitionException : public exception {
@@ -28,4 +28,9 @@ class CommandRedefinitionException : public exception {
 class InvalidCommandException : public exception {
     virtual const char* what() const noexcept override { return "Invalid command."; }
 };
+
+class InvalidAddressException : public exception {
+    virtual const char* what() const noexcept override { return "Invalid address."; }
+};
+
 

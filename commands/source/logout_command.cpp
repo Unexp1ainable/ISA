@@ -16,5 +16,11 @@ string LogoutCommand::getPayload() {
 
 Response *LogoutCommand::processResponse(char *buf) {
     _response = ResponseAnswer(buf);
+    if (_response.retcode == ResponseCode::OK){
+        int failure = remove("login-token");
+        if (failure){
+            throw UserNotLoggedInException();
+        }
+    }
     return &_response; 
 }

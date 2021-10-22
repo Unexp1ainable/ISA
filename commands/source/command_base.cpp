@@ -1,80 +1,63 @@
 #include "../include/command_base.h"
 
-
 CommandBase::CommandBase(ArgumentParser &args) : _args(args)
 {
 }
 
-CommandBase::SocketAddress CommandBase::createSocketAddress4() {
-    CommandBase::SocketAddress addr;
+addrinfo_ptr CommandBase::createSocketAddress()
+{
+    struct addrinfo hints;
+    struct addrinfo *result;
 
-    addr.ipv4.sin_family = AF_INET;
-    inet_pton(AF_INET, _args.ip().c_str(), &addr.ipv4.sin_addr.s_addr);
-    addr.ipv4.sin_port = htons(_args.port());
+    /* Obtain address(es) matching host/port */
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_UNSPEC;     /* Allow IPv4 or IPv6 */
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = 0;
+    hints.ai_protocol = 0; /* Any protocol */
 
-    return addr;
-}
-
-CommandBase::SocketAddress CommandBase::createSocketAddress6() {
-    CommandBase::SocketAddress addr;
-
-    addr.ipv6.sin6_family = AF_INET6;
-    inet_pton(AF_INET6, _args.ip().c_str(), &addr.ipv6.sin6_addr);
-    addr.ipv6.sin6_port = htons(_args.port());
-
-    return addr;
-}
-
-CommandBase::SocketAddress CommandBase::createSocketAddress(int* type) {
-    char buf[16];
-    if (inet_pton(AF_INET, _args.ip().c_str(), buf))
+    int s = getaddrinfo(_args.ip().c_str(), to_string(_args.port()).c_str(), &hints, &result);
+    if (s != 0)
     {
-        *type = AF_INET;
-        return createSocketAddress4();
+        throw InvalidAddressException();
     }
-    else if (inet_pton(AF_INET6, _args.ip().c_str(), buf))
-    {
-        *type = AF_INET6;
-        return createSocketAddress6();
-    }
-
-    *type = AF_UNSPEC;
-    return CommandBase::SocketAddress();
+    return addrinfo_ptr(result, [](addrinfo *a){ freeaddrinfo(a);});
 }
 
 Response *CommandBase::execute()
 {
+    char buffer[1024];
     string payload = getPayload();
 
-    auto socketFD = socket(AF_INET, SOCK_STREAM, 0);
+
+    int ret;
+    addrinfo_ptr addr = createSocketAddress();
+
+    auto socketFD = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
     if (socketFD < 0)
     {
         throw SocketFailureException();
     }
+    unique_ptr<int, function<int(int *)>>__a(&socketFD, [](int *fd)
+                                          { return close(*fd); });
+    ret = connect(socketFD, addr->ai_addr, addr->ai_addrlen);
 
-    int connectionType, ret;
-    CommandBase::SocketAddress addr = createSocketAddress(&connectionType);;
-    char buffer[1024];
-
-    if (connectionType == AF_INET) {
-        ret = connect(socketFD, (struct sockaddr *) &(addr.ipv4), sizeof(addr.ipv4));
-    } else if (connectionType == AF_INET6) {
-         ret = connect(socketFD, (struct sockaddr *) &(addr.ipv6), sizeof(addr.ipv6));
-    }
-
-    if (ret < 0) {
+    if (ret < 0)
+    {
         throw SocketFailureException();
     }
 
     ret = write(socketFD, payload.c_str(), payload.length());
 
-    if (ret == -1) {
+    if (ret == -1)
+    {
         throw SocketFailureException();
     }
 
     ret = read(socketFD, buffer, BUFFER_LEN);
-    
-    if (ret == -1) {
+
+    if (ret == -1)
+    {
         throw SocketFailureException();
     }
 
@@ -96,14 +79,13 @@ void CommandBase::checkNArgs(const int expected) const
 
 string CommandBase::authToken()
 {
-    auto file = ifstream("login-token");
+    auto file = ifstream("login-token", ios::in);
     if (!file.is_open())
     {
         throw UserNotLoggedInException();
     }
     string ret;
     getline(file, ret);
+    file.close();
     return ret;
 }
-
-

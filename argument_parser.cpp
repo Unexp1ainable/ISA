@@ -3,6 +3,7 @@
 #include "exceptions.h"
 #include <charconv>
 #include <iostream>
+#include <regex>
 
 ArgumentParser::ArgumentParser(int argc, char *argv[])
 {
@@ -10,17 +11,22 @@ ArgumentParser::ArgumentParser(int argc, char *argv[])
     {
         auto arg = argv[i];
 
-        // helper lambdas
+        // ----- helper lambdas -----
+        // performs char* to char* comparison, compares given string with arg
         auto argIs = [&arg](const char *s)
         {
             return strcmp(arg, s) == 0;
         };
 
+        // attempts to return the next argument, if there is no more avaliable, throws exception
+        // also escapes LF
         auto nextArg = [&]()
         {
             if (i + 1 == argc)
                 throw TooFewArgumentsException();
-            return argv[++i];
+            string ret = argv[++i];
+            ret = regex_replace(ret, regex("\n"), "\\n");
+            return ret;
         };
 
         // options
@@ -31,7 +37,7 @@ ArgumentParser::ArgumentParser(int argc, char *argv[])
         else if (argIs("-p") || argIs("--port"))
         {
             auto tmp = nextArg();
-            from_chars(tmp, tmp + strlen(tmp), _port);
+            from_chars(tmp.begin().base(), tmp.end().base(), _port);
         }
         else if (argIs("-h") || argIs("--help"))
         {
@@ -73,7 +79,9 @@ ArgumentParser::ArgumentParser(int argc, char *argv[])
         }
         else
         {
-            throw InvalidCommandException();
+            if (_command == Command::UNKNOWN)
+                throw InvalidCommandException();
+            throw TooManyArgumentsException();
         }
     }
 }

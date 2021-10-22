@@ -7,7 +7,7 @@ answer(nextToken(buffer))
 
 const string ResponseAnswer::message() const {
     if (retcode == ResponseCode::OK){
-    return answer;
+    return "SUCCESS: " + answer;
     }
-    return _errMessage;
+    return "ERROR: " + _errMessage;
 }

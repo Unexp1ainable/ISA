@@ -1,4 +1,5 @@
 #include "../include/response_base.h"
+#include <regex>
 
 Response::Response(const char buffer[BUFFER_LEN]) : retcode(getResponseCode(buffer)), _errMessage()
 {
@@ -21,7 +22,9 @@ string Response::nextToken(const char buffer[BUFFER_LEN])
         return "";
 
     _lastPos = end + 1;
-    return string(start + 1, end);
+    auto ret = string(start + 1, end);
+    ret = regex_replace(ret, regex("\\\\n"), "\n");
+    return ret;
 }
 
 pair<string, int> Response::nextToken(const char buffer[BUFFER_LEN], int pos)
@@ -34,8 +37,11 @@ pair<string, int> Response::nextToken(const char buffer[BUFFER_LEN], int pos)
     auto end = std::find(start + 1, endIt, '\"');
     if (start == endIt)
         return make_pair("", 0);
-
-    return make_pair(string(start + 1, end), end-startIt);
+    auto ret = string(start + 1, end);
+    
+    // replace terminated characters
+    ret = regex_replace(ret, regex("\\n"), "\n");
+    return make_pair(ret, end - startIt);
 }
 
 ResponseCode Response::getResponseCode(const char buffer[BUFFER_LEN])

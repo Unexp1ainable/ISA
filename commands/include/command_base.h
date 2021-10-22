@@ -5,6 +5,8 @@
 #include "../../responses/responses.h"
 
 #include <iostream>
+#include <memory>
+#include <functional>
 #include <string>
 #include <fstream>
 #include <stdlib.h>
@@ -15,34 +17,36 @@
 #include <unistd.h>
 
 using namespace std;
+using addrinfo_ptr = unique_ptr<addrinfo, function<void(addrinfo *)>>;
 
 class CommandBase
 {
 public:
     /**
      * @brief Construct a new Command Base object
-     * 
+     *
      * @param args Parsed arguments
      */
     CommandBase(ArgumentParser &args);
+    virtual ~CommandBase() = default;
 
     /**
      * @brief Defines way how the TCP payload is assembled
-     * 
+     *
      * @return string Request to be sent to ISAMAIL server.
      */
     virtual string getPayload() = 0;
 
     /**
      * @brief Returns response from the server
-     * 
+     *
      * @return Response* Response from the server.
      */
     virtual Response *response() = 0;
 
     /**
      * @brief Attempts to connect to the server, send the request and process the response.
-     * 
+     *
      * @return Response* Response send from the server.
      */
     Response *execute();
@@ -50,7 +54,7 @@ public:
 protected:
     /**
      * @brief Processes bytes send from the server
-     * 
+     *
      * @param buf Server response
      * @return Response* Processed response
      */
@@ -58,7 +62,7 @@ protected:
 
     /**
      * @brief Throws an exception if number of arguments is different than required.
-     * 
+     *
      * @param expected Expected number of arguments
      */
     void checkNArgs(const int expected) const;
@@ -66,26 +70,18 @@ protected:
     /**
      * @brief Attempts to load authentication token. Throws UserNotLoggedInException if no token is avaliable.
 
-     * 
+     *
      * @return string Auth token
      */
     string authToken();
 
-    union SocketAddress
-    {
-        sockaddr_in ipv4;
-        sockaddr_in6 ipv6;
-    };
-
     /**
      * @brief Create a socket address from arguments loaded on object construction.
-     * 
+     *
      * @param type Type of address. AF_INET, AF_INET6 or AF_UNSPEC
      * @return SocketAddress Address in an union
      */
-    SocketAddress createSocketAddress(int *type);
-    SocketAddress createSocketAddress4();
-    SocketAddress createSocketAddress6();
+    addrinfo_ptr createSocketAddress();
 
     ArgumentParser _args;
 };
